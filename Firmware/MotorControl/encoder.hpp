@@ -18,7 +18,9 @@ public:
 
     enum Mode_t {
         MODE_INCREMENTAL,
-        MODE_HALL
+        MODE_HALL,
+        MODE_ANALOG,
+        MODE_SPI
     };
 
     struct Config_t {
@@ -40,7 +42,7 @@ public:
 
     Encoder(const EncoderHardwareConfig_t& hw_config,
                      Config_t& config);
-    
+
     void setup();
     void set_error(Error_t error);
     bool do_checks();
@@ -74,6 +76,27 @@ public:
     // float pll_kp_ = 0.0f;   // [rad/s / rad]
     // float pll_ki_ = 0.0f;   // [(rad/s^2) / rad]
 
+    /* SPI ENCODER */
+    //Counters for turning absolute encoder value into a continuous (and possibly negative) value for shadow_count
+    int32_t shadow_counter_ = 0; //Overflow counter
+    int32_t shadow_count_prev_ = 0; //Used for determining directionality
+    bool shadow_flag_ = 0; //Used for the first step
+
+    /* ANALOG ENCODER */
+    float max_t1=0;
+    float max_t2=0;
+    float min_t1=10;
+    float min_t2=10;
+    
+    float max_1 = 1.55;
+    float min_1 = 0.4;
+    float max_2 = 1.3;
+    float min_2 = 0.55;
+    float shift_1 = max_1-(max_1-min_1)/2;
+    float range_1 = (max_1-min_1)/2;
+    float shift_2 = max_2-(max_2-min_2)/2;
+    float range_2 = (max_2-min_2)/2;
+    int angle,old_angle;
     // Updated by low_level pwm_adc_cb
     uint8_t hall_state_ = 0x0; // bit[0] = HallA, .., bit[2] = HallC
 

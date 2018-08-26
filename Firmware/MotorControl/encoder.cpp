@@ -94,7 +94,7 @@ bool Encoder::run_index_search() {
         voltage_magnitude = axis_->motor_.config_.calibration_current;
     else
         return false;
-    
+
     float omega = (float)(axis_->motor_.config_.direction) * config_.idx_search_speed;
 
     index_found_ = false;
@@ -166,7 +166,7 @@ bool Encoder::run_offset_calibration() {
         axis_->motor_.log_timing(Motor::TIMING_LOG_ENC_CALIB);
 
         encvaluesum += shadow_count_;
-        
+
         return ++i < num_steps;
     });
     if (axis_->error_ != Axis::ERROR_NONE)
@@ -205,7 +205,7 @@ bool Encoder::run_offset_calibration() {
         axis_->motor_.log_timing(Motor::TIMING_LOG_ENC_CALIB);
 
         encvaluesum += shadow_count_;
-        
+
         return ++i < num_steps;
     });
     if (axis_->error_ != Axis::ERROR_NONE)
@@ -265,7 +265,59 @@ bool Encoder::update() {
                 return false;
             }
         } break;
-        
+
+        case MODE_ANALOG: {
+          // float a = get_adc_voltage(GPIO_3_GPIO_Port, GPIO_3_Pin);
+          // float b = get_adc_voltage(GPIO_4_GPIO_Port, GPIO_4_Pin);
+
+          // if(a>max_t1)
+          //   max_t1=a;
+          // if(a<min_t1)
+          //   min_t1=a;
+          // if(b>max_t2)
+          //   max_t2=b;
+          // if(b<min_t2)
+          //   min_t2=b;
+
+          float x = float(get_adc_voltage(GPIO_3_GPIO_Port, GPIO_3_Pin)-shift_1)/range_1; //do not change to double ??? or usb doesn't connect
+          float y = float(get_adc_voltage(GPIO_4_GPIO_Port, GPIO_4_Pin)-shift_2)/range_2;
+          int count_per_elec_turn = config_.cpr / axis_->motor_.config_.pole_pairs;
+          int count = (int)(count_per_elec_turn * atan2(x,y) * (1.0f/6.28318530718f));
+          delta_enc = count - count_in_cpr_;
+          delta_enc = mod(delta_enc, count_per_elec_turn);
+          if (delta_enc > count_per_elec_turn/2)
+              delta_enc -= count_per_elec_turn;
+
+        } break;
+
+        case MODE_SPI: {
+          // uint16_t as5047p_data = AS5047P_readPosition(&AS5047PEncoder);
+          uint16_t as5047p_data = 0;
+          // osDelay(100);
+          as5047p_data = as5047p_data & 0x3FFF;
+          // AS5047PEncoder.encoder_angle = (as5047p_data/16383.0)*360;
+          // // AS5047PEncoder.encoder_cnt = (as5047p_data) * 4000/16383; //Old update when count was out of 4000
+          // AS5047PEncoder.encoder_cnt = (as5047p_data);
+          //
+          // count_in_cpr_ = AS5047PEncoder.encoder_cnt;
+          // count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
+
+          // Need this code for shadow_count_ because raw absolute encoder loops around.
+          if(shadow_flag_){
+              if(((config_.cpr*shadow_counter_ + count_in_cpr_)-shadow_count_prev_)<(-config_.cpr/2)){ //dEncdt>0
+              shadow_counter_++;
+              }else if(((config_.cpr*shadow_counter_ + count_in_cpr_)-shadow_count_prev_)>(config_.cpr/2)){ //dEncdt<0
+                  shadow_counter_--;
+              }
+          }else{
+              shadow_flag_ = 1;
+          }
+
+          shadow_count_ = config_.cpr*shadow_counter_ + count_in_cpr_;
+          shadow_count_prev_ = shadow_count_;
+
+        } break;
+
         default: {
            set_error(ERROR_UNSUPPORTED_ENCODER_MODE);
            return false;
