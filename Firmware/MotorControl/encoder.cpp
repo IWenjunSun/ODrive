@@ -279,8 +279,8 @@ bool Encoder::update() {
           // if(b<min_t2)
           //   min_t2=b;
 
-          float x = float(get_adc_voltage(GPIO_3_GPIO_Port, GPIO_3_Pin)-shift_1)/range_1; //do not change to double ??? or usb doesn't connect
-          float y = float(get_adc_voltage(GPIO_4_GPIO_Port, GPIO_4_Pin)-shift_2)/range_2;
+          float x = float(get_adc_voltage(GPIO_1_GPIO_Port, GPIO_1_Pin)-shift_1)/range_1; //do not change to double ??? or usb doesn't connect
+          float y = float(get_adc_voltage(GPIO_2_GPIO_Port, GPIO_2_Pin)-shift_2)/range_2;
           int count_per_elec_turn = config_.cpr / axis_->motor_.config_.pole_pairs;
           int count = (int)(count_per_elec_turn * atan2(x,y) * (1.0f/6.28318530718f));
           delta_enc = count - count_in_cpr_;
@@ -291,16 +291,15 @@ bool Encoder::update() {
         } break;
 
         case MODE_SPI: {
-          // uint16_t as5047p_data = AS5047P_readPosition(&AS5047PEncoder);
-          uint16_t as5047p_data = 0;
+          uint16_t as5047p_data = AS5047P_readPosition(&AS5047PEncoder);
           // osDelay(100);
           as5047p_data = as5047p_data & 0x3FFF;
-          // AS5047PEncoder.encoder_angle = (as5047p_data/16383.0)*360;
-          // // AS5047PEncoder.encoder_cnt = (as5047p_data) * 4000/16383; //Old update when count was out of 4000
-          // AS5047PEncoder.encoder_cnt = (as5047p_data);
-          //
-          // count_in_cpr_ = AS5047PEncoder.encoder_cnt;
-          // count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
+          AS5047PEncoder.encoder_angle = (as5047p_data/16383.0)*360;
+          // AS5047PEncoder.encoder_cnt = (as5047p_data) * 4000/16383; //Old update when count was out of 4000
+          AS5047PEncoder.encoder_cnt = (as5047p_data);
+
+          count_in_cpr_ = AS5047PEncoder.encoder_cnt;
+          count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
 
           // Need this code for shadow_count_ because raw absolute encoder loops around.
           if(shadow_flag_){

@@ -147,6 +147,7 @@ build{
     packages={'stm_platform'},
     sources={
         'Drivers/DRV8301/drv8301.c',
+        'Drivers/AS5047P/as5047p.c',
         'MotorControl/utils.c',
         'MotorControl/low_level.cpp',
         'MotorControl/nvm.c',
@@ -167,6 +168,7 @@ build{
     },
     includes={
         'Drivers/DRV8301',
+        'Drivers/AS5047P',
         'MotorControl',
         'fibre/cpp/include',
         '.'

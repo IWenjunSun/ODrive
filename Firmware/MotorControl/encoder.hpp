@@ -5,6 +5,8 @@
 #error "This file should not be included directly. Include odrive_main.h instead."
 #endif
 
+#include "as5047p.h"
+
 class Encoder {
 public:
     enum Error_t {
@@ -77,6 +79,7 @@ public:
     // float pll_ki_ = 0.0f;   // [(rad/s^2) / rad]
 
     /* SPI ENCODER */
+    AS5047P_Obj AS5047PEncoder;
     //Counters for turning absolute encoder value into a continuous (and possibly negative) value for shadow_count
     int32_t shadow_counter_ = 0; //Overflow counter
     int32_t shadow_count_prev_ = 0; //Used for determining directionality
@@ -87,7 +90,7 @@ public:
     float max_t2=0;
     float min_t1=10;
     float min_t2=10;
-    
+
     float max_1 = 1.55;
     float min_1 = 0.4;
     float max_2 = 1.3;
