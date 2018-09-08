@@ -140,10 +140,22 @@ int odrive_main(void) {
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Pin = GPIO_1_Pin;
-    HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
-    GPIO_InitStruct.Pin = GPIO_2_Pin;
-    HAL_GPIO_Init(GPIO_2_GPIO_Port, &GPIO_InitStruct);
+    if (axes[0]->encoder_.config_.mode==Encoder::MODE_ANALOG) { //ANALOG
+      GPIO_InitStruct.Pin = GPIO_1_Pin;
+      HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
+      GPIO_InitStruct.Pin = GPIO_2_Pin;
+      HAL_GPIO_Init(GPIO_2_GPIO_Port, &GPIO_InitStruct);
+    }
+    else if(axes[0]->encoder_.config_.mode==Encoder::MODE_SPI) //SPI. ! need to disable UART to use GPIO1/2 !
+    {
+      GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+      GPIO_InitStruct.Pull = GPIO_PULLUP;
+      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+      GPIO_InitStruct.Pin = GPIO_1_Pin;
+      HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
+      GPIO_InitStruct.Pin = GPIO_2_Pin;
+      HAL_GPIO_Init(GPIO_2_GPIO_Port, &GPIO_InitStruct);
+    }
     GPIO_InitStruct.Pin = GPIO_3_Pin;
     HAL_GPIO_Init(GPIO_3_GPIO_Port, &GPIO_InitStruct);
     GPIO_InitStruct.Pin = GPIO_4_Pin;
@@ -165,7 +177,7 @@ int odrive_main(void) {
         axes[i] = new Axis(hw_configs[i].axis_config, axis_configs[i],
                 *encoder, *sensorless_estimator, *controller, *motor);
     }
-    
+
     // Start ADC for temperature measurements and user measurements
     start_general_purpose_adc();
 

@@ -39,6 +39,10 @@ typedef struct {
     uint16_t hallB_pin;
     GPIO_TypeDef* hallC_port;
     uint16_t hallC_pin;
+    /* SPI */ //order need to be the same for struct and init struct below
+    SPI_HandleTypeDef* spi;
+    GPIO_TypeDef* nCS_port;
+    uint16_t nCS_pin;
 } EncoderHardwareConfig_t;
 typedef struct {
     TIM_HandleTypeDef* timer;
@@ -91,6 +95,10 @@ const BoardHardwareConfig_t hw_configs[2] = { {
         .hallB_pin = M0_ENC_B_Pin,
         .hallC_port = M0_ENC_Z_GPIO_Port,
         .hallC_pin = M0_ENC_Z_Pin,
+        //added for as5047p encoder, GPIO1 for M0
+        .spi = &hspi3,
+        .nCS_port = GPIO_1_GPIO_Port,
+        .nCS_pin = GPIO_1_Pin,
     },
     .motor_config = {
         .timer = &htim1,
@@ -138,6 +146,10 @@ const BoardHardwareConfig_t hw_configs[2] = { {
         .hallB_pin = M1_ENC_B_Pin,
         .hallC_port = M1_ENC_Z_GPIO_Port,
         .hallC_pin = M1_ENC_Z_Pin,
+        //added for as5047p encoder, GPIO2 for M1
+        .spi = &hspi3,
+        .nCS_port = GPIO_2_GPIO_Port,
+        .nCS_pin = GPIO_2_Pin,
     },
     .motor_config = {
         .timer = &htim8,

@@ -26,7 +26,7 @@ public:
     };
 
     struct Config_t {
-        Encoder::Mode_t mode = Encoder::MODE_INCREMENTAL;
+        Encoder::Mode_t mode = Encoder::MODE_ANALOG;
         bool use_index = false;
         bool pre_calibrated = false; // If true, this means the offset stored in
                                     // configuration is valid and does not need
@@ -81,7 +81,7 @@ public:
     /* SPI ENCODER */
     AS5047P_Obj AS5047PEncoder;
     //Counters for turning absolute encoder value into a continuous (and possibly negative) value for shadow_count
-    int32_t shadow_counter_ = 0; //Overflow counter
+    int32_t shadow_loop_counter_ = 0; //Overflow counter
     int32_t shadow_count_prev_ = 0; //Used for determining directionality
     bool shadow_flag_ = 0; //Used for the first step
 
@@ -91,10 +91,10 @@ public:
     float min_t1=10;
     float min_t2=10;
 
-    float max_1 = 1.55;
-    float min_1 = 0.4;
-    float max_2 = 1.3;
-    float min_2 = 0.55;
+    float max_1 = 1.55f;
+    float min_1 = 0.4f;
+    float max_2 = 1.3f;
+    float min_2 = 0.55f;
     float shift_1 = max_1-(max_1-min_1)/2;
     float range_1 = (max_1-min_1)/2;
     float shift_2 = max_2-(max_2-min_2)/2;

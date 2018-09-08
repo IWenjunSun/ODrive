@@ -5,12 +5,22 @@
 Encoder::Encoder(const EncoderHardwareConfig_t& hw_config,
                 Config_t& config) :
         hw_config_(hw_config),
-        config_(config)
+        config_(config),
+        AS5047PEncoder({
+             .spiHandle = hw_config_.spi, //&hspi3,
+             .nCSgpioHandle = hw_config_.nCS_port,//GPIO_1_GPIO_Port,
+             .nCSgpioNumber = hw_config_.nCS_pin,// GPIO_1_Pin,
+             .encoder_angle = 0.0f,
+         })
 {
     if (config.pre_calibrated && (config.mode == Encoder::MODE_HALL)) {
         offset_ = config.offset;
         is_ready_ = true;
     }
+    if (config.pre_calibrated && (config.mode == Encoder::MODE_SPI)) {
+         offset_ = config.offset;
+         is_ready_ = true;
+     }
 }
 
 static void enc_index_cb_wrapper(void* ctx) {
@@ -251,6 +261,10 @@ bool Encoder::update() {
             //or use 64 bit
             int16_t delta_enc_16 = (int16_t)hw_config_.timer->Instance->CNT - (int16_t)shadow_count_;
             delta_enc = (int32_t)delta_enc_16; //sign extend
+
+            shadow_count_ += delta_enc;
+            count_in_cpr_ += delta_enc;
+            count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
         } break;
 
         case MODE_HALL: {
@@ -264,6 +278,10 @@ bool Encoder::update() {
                 set_error(ERROR_ILLEGAL_HALL_STATE);
                 return false;
             }
+
+            shadow_count_ += delta_enc;
+            count_in_cpr_ += delta_enc;
+            count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
         } break;
 
         case MODE_ANALOG: {
@@ -288,6 +306,9 @@ bool Encoder::update() {
           if (delta_enc > count_per_elec_turn/2)
               delta_enc -= count_per_elec_turn;
 
+          shadow_count_ += delta_enc;
+          count_in_cpr_ += delta_enc;
+          count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
         } break;
 
         case MODE_SPI: {
@@ -301,18 +322,22 @@ bool Encoder::update() {
           count_in_cpr_ = AS5047PEncoder.encoder_cnt;
           count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
 
+          if(shadow_flag_==0)
+          {
+            shadow_count_ = config_.cpr*shadow_loop_counter_ + count_in_cpr_;
+            shadow_count_prev_ = shadow_count_;
+            shadow_flag_ = 1;
+            break;
+          }
           // Need this code for shadow_count_ because raw absolute encoder loops around.
-          if(shadow_flag_){
-              if(((config_.cpr*shadow_counter_ + count_in_cpr_)-shadow_count_prev_)<(-config_.cpr/2)){ //dEncdt>0
-              shadow_counter_++;
-              }else if(((config_.cpr*shadow_counter_ + count_in_cpr_)-shadow_count_prev_)>(config_.cpr/2)){ //dEncdt<0
-                  shadow_counter_--;
-              }
-          }else{
-              shadow_flag_ = 1;
+
+          if(((config_.cpr*shadow_loop_counter_ + count_in_cpr_)-shadow_count_prev_)<(-config_.cpr/2)){ //dEncdt>0
+            shadow_loop_counter_++;
+          }else if(((config_.cpr*shadow_loop_counter_ + count_in_cpr_)-shadow_count_prev_)>(config_.cpr/2)){ //dEncdt<0
+            shadow_loop_counter_--;
           }
 
-          shadow_count_ = config_.cpr*shadow_counter_ + count_in_cpr_;
+          shadow_count_ = config_.cpr*shadow_loop_counter_ + count_in_cpr_;
           shadow_count_prev_ = shadow_count_;
 
         } break;
@@ -322,10 +347,6 @@ bool Encoder::update() {
            return false;
         } break;
     }
-
-    shadow_count_ += delta_enc;
-    count_in_cpr_ += delta_enc;
-    count_in_cpr_ = mod(count_in_cpr_, config_.cpr);
 
     //// run pll (for now pll is in units of encoder counts)
     // Predict current pos
