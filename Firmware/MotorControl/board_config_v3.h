@@ -97,8 +97,8 @@ const BoardHardwareConfig_t hw_configs[2] = { {
         .hallC_pin = M0_ENC_Z_Pin,
         //added for as5047p encoder, GPIO1 for M0
         .spi = &hspi3,
-        .nCS_port = GPIO_1_GPIO_Port,
-        .nCS_pin = GPIO_1_Pin,
+        .nCS_port = GPIO_3_GPIO_Port,
+        .nCS_pin = GPIO_3_Pin,
     },
     .motor_config = {
         .timer = &htim1,
@@ -148,8 +148,8 @@ const BoardHardwareConfig_t hw_configs[2] = { {
         .hallC_pin = M1_ENC_Z_Pin,
         //added for as5047p encoder, GPIO2 for M1
         .spi = &hspi3,
-        .nCS_port = GPIO_2_GPIO_Port,
-        .nCS_pin = GPIO_2_Pin,
+        .nCS_port = GPIO_4_GPIO_Port,
+        .nCS_pin = GPIO_4_Pin,
     },
     .motor_config = {
         .timer = &htim8,
