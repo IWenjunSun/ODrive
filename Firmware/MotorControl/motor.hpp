@@ -36,12 +36,12 @@ typedef struct {
 // example: vel_gain is [V/(count/s)] instead of [A/(count/s)]
 // example: current_lim and calibration_current will instead determine the maximum voltage applied to the motor.
 typedef struct {
-    bool pre_calibrated = false; // can be set to true to indicate that all values here are valid
-    int32_t pole_pairs = 7;
-    float calibration_current = 10.0f;    // [A]
-    float resistance_calib_max_voltage = 1.0f; // [V] - You may need to increase this if this voltage isn't sufficient to drive calibration_current through the motor.
-    float phase_inductance = 0.0f;        // to be set by measure_phase_inductance
-    float phase_resistance = 0.0f;        // to be set by measure_phase_resistance
+    bool pre_calibrated = true; // can be set to true to indicate that all values here are valid
+    int32_t pole_pairs = 14;
+    float calibration_current = 1.0f;    // [A]
+    float resistance_calib_max_voltage = 12.0f; // [V] - You may need to increase this if this voltage isn't sufficient to drive calibration_current through the motor.
+    float phase_inductance = 0.007202266249805689f;        // to be set by measure_phase_inductance
+    float phase_resistance = 10.579081535339355f;        // to be set by measure_phase_resistance
     int32_t direction = 1;                // 1 or -1
     Motor_type_t motor_type = MOTOR_TYPE_HIGH_CURRENT;
 
@@ -140,7 +140,7 @@ public:
     Error_t error_ = ERROR_NONE;
     // Do not write to this variable directly!
     // It is for exclusive use by the safety_critical_... functions.
-    ArmedState_t armed_state_ = ARMED_STATE_DISARMED; 
+    ArmedState_t armed_state_ = ARMED_STATE_DISARMED;
     bool is_calibrated_ = config_.pre_calibrated;
     Iph_BC_t current_meas_ = {0.0f, 0.0f};
     Iph_BC_t DC_calib_ = {0.0f, 0.0f};

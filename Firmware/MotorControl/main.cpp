@@ -151,15 +151,15 @@ int odrive_main(void) {
       GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
       GPIO_InitStruct.Pull = GPIO_PULLUP;
       GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-      GPIO_InitStruct.Pin = GPIO_1_Pin;
-      HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
-      GPIO_InitStruct.Pin = GPIO_2_Pin;
-      HAL_GPIO_Init(GPIO_2_GPIO_Port, &GPIO_InitStruct);
+      GPIO_InitStruct.Pin = GPIO_3_Pin;
+      HAL_GPIO_Init(GPIO_3_GPIO_Port, &GPIO_InitStruct);
+      GPIO_InitStruct.Pin = GPIO_4_Pin;
+      HAL_GPIO_Init(GPIO_4_GPIO_Port, &GPIO_InitStruct);
     }
-    GPIO_InitStruct.Pin = GPIO_3_Pin;
-    HAL_GPIO_Init(GPIO_3_GPIO_Port, &GPIO_InitStruct);
-    GPIO_InitStruct.Pin = GPIO_4_Pin;
-    HAL_GPIO_Init(GPIO_4_GPIO_Port, &GPIO_InitStruct);
+    // GPIO_InitStruct.Pin = GPIO_3_Pin;
+    // HAL_GPIO_Init(GPIO_3_GPIO_Port, &GPIO_InitStruct);
+    // GPIO_InitStruct.Pin = GPIO_4_Pin;
+    // HAL_GPIO_Init(GPIO_4_GPIO_Port, &GPIO_InitStruct);
 #if HW_VERSION_MAJOR == 3 && HW_VERSION_MINOR >= 5
     GPIO_InitStruct.Pin = GPIO_5_Pin;
     HAL_GPIO_Init(GPIO_5_GPIO_Port, &GPIO_InitStruct);

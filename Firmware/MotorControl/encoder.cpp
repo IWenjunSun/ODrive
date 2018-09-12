@@ -305,7 +305,6 @@ bool Encoder::update() {
           delta_enc = mod(delta_enc, count_per_elec_turn);
           if (delta_enc > count_per_elec_turn/2)
               delta_enc -= count_per_elec_turn;
-
           shadow_count_ += delta_enc;
           count_in_cpr_ += delta_enc;
           count_in_cpr_ = mod(count_in_cpr_, config_.cpr);

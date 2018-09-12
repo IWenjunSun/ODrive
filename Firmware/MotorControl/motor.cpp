@@ -83,7 +83,7 @@ void Motor::DRV8301_setup() {
     float requested_gain = max_unity_gain_current / config_.requested_current_range; // [V/V]
 
     // Decoding array for snapping gain
-    std::array<std::pair<float, DRV8301_ShuntAmpGain_e>, 4> gain_choices = { 
+    std::array<std::pair<float, DRV8301_ShuntAmpGain_e>, 4> gain_choices = {
         std::make_pair(10.0f, DRV8301_ShuntAmpGain_10VpV),
         std::make_pair(20.0f, DRV8301_ShuntAmpGain_20VpV),
         std::make_pair(40.0f, DRV8301_ShuntAmpGain_40VpV),
@@ -91,7 +91,7 @@ void Motor::DRV8301_setup() {
     };
 
     // We use lower_bound in reverse because it snaps up by default, we want to snap down.
-    auto gain_snap_down = std::lower_bound(gain_choices.crbegin(), gain_choices.crend(), requested_gain, 
+    auto gain_snap_down = std::lower_bound(gain_choices.crbegin(), gain_choices.crend(), requested_gain,
     [](std::pair<float, DRV8301_ShuntAmpGain_e> pair, float val){
         return pair.first > val;
     });
@@ -182,7 +182,7 @@ bool Motor::measure_phase_resistance(float test_current, float max_voltage) {
     static const float kI = 10.0f;                                 // [(V/s)/A]
     static const int num_test_cycles = static_cast<int>(3.0f / CURRENT_MEAS_PERIOD); // Test runs for 3s
     float test_voltage = 0.0f;
-    
+
     size_t i = 0;
     axis_->run_control_loop([&](){
         float Ialpha = -(current_meas_.phB + current_meas_.phC);
@@ -241,7 +241,7 @@ bool Motor::measure_phase_inductance(float voltage_low, float voltage_high) {
 
     config_.phase_inductance = L;
     // TODO arbitrary values set for now
-    if (L < 1e-6f || L > 500e-6f)
+    if (L < 1e-6f || L > 0.02)
         return set_error(ERROR_PHASE_INDUCTANCE_OUT_OF_RANGE), false;
     return true;
 }
@@ -261,7 +261,7 @@ bool Motor::run_calibration() {
     }
 
     update_current_controller_gains();
-    
+
     is_calibrated_ = true;
     return true;
 }
