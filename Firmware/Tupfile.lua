@@ -164,7 +164,10 @@ build{
         'communication/interface_can.cpp',
         'communication/interface_i2c.cpp',
         'fibre/cpp/protocol.cpp',
-        'FreeRTOS-openocd.c'
+        'FreeRTOS-openocd.c',
+        'MotorControl/planner.cpp',
+        'MotorControl/motionPlanning.cpp',
+        'MotorControl/bbpr.cpp'
     },
     includes={
         'Drivers/DRV8301',

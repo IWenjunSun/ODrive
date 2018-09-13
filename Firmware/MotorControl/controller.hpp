@@ -28,10 +28,12 @@ public:
     Controller(ControllerConfig_t& config);
     void reset();
 
+    void homing(void);
+    void tmove(float pos_setpoint, float vel_feed_forward, float current_feed_forward);
     void set_pos_setpoint(float pos_setpoint, float vel_feed_forward, float current_feed_forward);
     void set_vel_setpoint(float vel_setpoint, float current_feed_forward);
     void set_current_setpoint(float current_setpoint);
-    
+
     // TODO: make this more similar to other calibration loops
     void start_anticogging_calibration();
     bool anticogging_calibration(float pos_estimate, float vel_estimate);
@@ -86,6 +88,10 @@ public:
                 make_protocol_property("vel_limit", &config_.vel_limit)
             ),
             make_protocol_function("set_pos_setpoint", *this, &Controller::set_pos_setpoint,
+                "pos_setpoint",
+                "vel_feed_forward",
+                "current_feed_forward"),
+            make_protocol_function("tmove", *this, &Controller::tmove,
                 "pos_setpoint",
                 "vel_feed_forward",
                 "current_feed_forward"),
